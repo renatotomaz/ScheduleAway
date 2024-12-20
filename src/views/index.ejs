@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/ico" href="/favicon.ico">
+  <title>Cadastro de Ausência</title>
+  <link rel="stylesheet" href="/styles.css"> 
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <!-- Flatpickr CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+</head>
+<body>
+  <h1>Cadastro de Ausência</h1>
+
+  <form id="absenceForm" action="/absences" method="POST">
+    <label for="employeeName">Funcionário:</label>
+    <select name="employeeName" id="employeeName" required>
+      <option value="">Selecione</option>
+      <% employees.forEach(function(employee) { %>
+        <option value="<%= employee.name %>"><%= employee.name %></option>
+      <% }); %>
+    </select>
+  
+    <label for="startDate">Data de Início:</label>
+    <input type="text" id="startDate" name="startDate" required>
+  
+    <label for="endDate">Data de Fim:</label>
+    <input type="text" id="endDate" name="endDate" required>
+  
+    <label for="reason">Motivo:</label>
+    <textarea id="reason" name="reason" required></textarea>
+  
+    <button type="submit">Cadastrar Ausência</button>
+  </form>
+
+    <!-- Modal de sucesso -->
+    <div id="successModal" style="display: none;">
+      <p id="successMessage">Ausência cadastrada com sucesso!</p>
+    </div>
+
+<!-- Container para os botões -->
+<div class="button-container" style="display: flex; gap: 10px;">
+  <!-- Botão para a página de ausências semanais -->
+  <button onclick="redirectToWeeklyAbsences()" class="link-button">Ver Ausências Semanais</button>
+  
+  <!-- Botão para o início e fim do mês -->
+  <button onclick="goToMonth()" class="link-button">Ver Ausências do Mês</button>
+</div>
+
+<script>
+  function goToMonth() {
+    // Obter a data atual
+    const now = new Date();
+    
+     // Formatar a data atual para o formato desejado: YYYY-MM-DD
+     const currentFormatted = now.toISOString().split('T')[0];
+    
+    // Redirecionar para a URL com o parâmetro 'month'
+    window.location.href = `/gantt/ganttMonthly?month=${currentFormatted}`;
+  }
+</script>
+
+
+<script>
+// Função para calcular as datas de segunda-feira e sexta-feira da semana atual
+function redirectToWeeklyAbsences() {
+  const today = new Date(); 
+
+  // Calcular a data da segunda-feira
+  const dayOfWeek = today.getDay(); // Dia da semana (0=Domingo, 1=Segunda, ..., 6=Sábado)
+  const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; 
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - daysToMonday); 
+
+  // Calcular a data da sexta-feira
+  const friday = new Date(monday); 
+  friday.setDate(monday.getDate() + 4); 
+
+  // Formatar as datas no formato YYYY-MM-DD
+  const formatDate = (date) => {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${year}-${month}-${day}`;
+  };
+
+  // Obter as datas formatadas
+  const startDate = formatDate(monday);
+  const endDate = formatDate(friday);
+
+  // Redirecionar para a página com os parâmetros de data
+  window.location.href = `/gantt?start=${startDate}&end=${endDate}`;
+}
+</script>
+
+
+  <h2>Lista de Ausências</h2>
+  <table border="1" id="absenceTable">
+    <thead>
+      <tr>
+        <th data-sortable="true">Funcionário <i class="fas fa-sort"></i></th>
+        <th data-sortable="true">Data de Início <i class="fas fa-sort"></i></th>
+        <th data-sortable="true">Data de Fim <i class="fas fa-sort"></i></th>
+        <th data-sortable="true">Motivo <i class="fas fa-sort"></i></th>
+        <th> </th>
+      </tr>
+    </thead>
+    <tbody>
+      <% absences.forEach(function(absence) { 
+          // Função para formatar as datas no formato DD/MM/AA
+          function formatDate(dateStr) {
+            const parts = dateStr.split("/"); // Divide a data por "/"
+            // parts[0] = dia, parts[1] = mês, parts[2] = ano
+            const formattedDate = new Date(parts[2], parts[1] - 1, parts[0]); // Cria a data com ano, mês e dia
+            const day = ("0" + formattedDate.getDate()).slice(-2); // Adiciona zero à esquerda se necessário
+            const month = ("0" + (formattedDate.getMonth() + 1)).slice(-2); // Mês começa do 0, por isso somamos 1
+            const year = formattedDate.getFullYear().toString().slice(-2); // Pegando apenas os 2 últimos dígitos do ano
+            return `${day}/${month}/${year}`;
+          }
+      %>
+      <tr>
+        <td><%= absence.employeeName %></td>
+        <td><%= formatDate(absence.startDate) %></td>
+        <td><%= formatDate(absence.endDate) %></td>
+        <td><%= absence.reason %></td>
+        <td>
+          <button class="delete-btn" data-id="<%= absence.index %>">
+            <i class="fas fa-trash-alt"></i> 
+          </button>
+        </td>
+      </tr>
+      <% }); %>
+    </tbody>
+  </table>
+  
+  <script>
+    // Função para ordenar a tabela
+    function sortTable(n) {
+      const table = document.getElementById("absenceTable");
+      const rows = Array.from(table.rows).slice(1);
+  
+      const isNumeric = (value) => !isNaN(value) && value.trim() !== ''; 
+      const comparator = (a, b) => {
+        const valA = a.cells[n].innerText.trim();
+        const valB = b.cells[n].innerText.trim();
+  
+        // Se for uma data, converta para objeto Date e compare
+        if (valA.match(/\d{2}\/\d{2}\/\d{2}/) && valB.match(/\d{2}\/\d{2}\/\d{2}/)) {
+          const dateA = new Date(valA.split("/").reverse().join("-"));
+          const dateB = new Date(valB.split("/").reverse().join("-"));
+          return dateA - dateB;
+        }
+  
+        // Se for numérico, compara como números
+        if (isNumeric(valA) && isNumeric(valB)) {
+          return parseFloat(valA) - parseFloat(valB);
+        }
+  
+        // Caso contrário, compara como strings
+        return valA.localeCompare(valB);
+      };
+  
+      // Ordena as linhas
+      const sortedRows = rows.sort(comparator);
+  
+      // Inverte a ordem se já estiver ordenado
+      if (table.rows[0].cells[n].getAttribute('data-sort-direction') === 'asc') {
+        sortedRows.reverse();
+        table.rows[0].cells[n].setAttribute('data-sort-direction', 'desc');
+      } else {
+        table.rows[0].cells[n].setAttribute('data-sort-direction', 'asc');
+      }
+  
+      // Limpa os ícones de todas as colunas
+      const headers = table.querySelectorAll('th[data-sortable="true"]');
+      headers.forEach((header) => {
+        const icon = header.querySelector('i');
+        icon.classList.remove('fa-sort', 'fa-sort-asc', 'fa-sort-desc');
+        icon.classList.add('fa-sort');
+        // Remove o destaque de cor e a borda de cada ícone
+        icon.style.color = ''; 
+        icon.style.border = '';
+      });
+  
+      // Adiciona o ícone de ordenação para a coluna clicada
+      const currentHeader = table.rows[0].cells[n];
+      const currentIcon = currentHeader.querySelector('i');
+      if (currentHeader.getAttribute('data-sort-direction') === 'asc') {
+        currentIcon.classList.add('fa-sort-asc');
+      } else {
+        currentIcon.classList.add('fa-sort-desc');
+      }
+  
+      // Destaca o ícone da coluna ordenada
+      currentIcon.style.color = '#007bff'; 
+  
+      // Adiciona as linhas ordenadas à tabela
+      sortedRows.forEach(row => table.appendChild(row));
+    }
+  
+    // Adiciona evento de clique nas colunas
+    document.querySelectorAll("th[data-sortable='true']").forEach((header, index) => {
+      header.addEventListener("click", () => sortTable(index));
+    });
+  </script>
+  
+  <style>
+    /* Estilo adicional para os ícones de ordenação */
+    th[data-sortable="true"] i {
+      transition: color 0.3s, border 0.3s; /* Transição suave para cor e borda */
+    }
+  </style>
+  
+
+
+  <!-- Flatpickr JS -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+  <!-- Inicializando o Flatpickr -->
+  <script>
+    flatpickr("#startDate", {
+      dateFormat: "d/m/Y", 
+    });
+
+    flatpickr("#endDate", {
+      dateFormat: "d/m/Y", 
+    });
+  </script>
+
+<script>
+  document.getElementById('absenceForm').addEventListener('submit', async (event) => {
+    event.preventDefault(); // Evita o envio padrão do formulário
+  
+    // Captura os dados do formulário
+    const formData = new FormData(event.target);
+    const data = Object.fromEntries(formData.entries()); 
+
+    try {
+      // Faz a requisição POST para o servidor
+      const response = await fetch('/absences', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+  
+      const result = await response.json();
+  
+      if (result.success) {
+        // Atualiza o texto dentro do modal de sucesso
+        const successMessage = document.getElementById('successModal');
+        successMessage.querySelector('p').innerText = result.message;
+
+        // Exibe o modal de sucesso
+        successMessage.style.display = 'block';
+
+        // Opcional: Atualiza a tabela sem recarregar a página
+        addAbsenceToTable(result.newAbsence);
+      }  else {
+        alert('Erro: ' + (result.error || 'Erro desconhecido.'));
+      }
+    } catch (error) {
+      console.error('Erro ao enviar:', error);
+      alert('Erro ao enviar o formulário.');
+    }
+  });
+  
+  // Função para adicionar a nova ausência na tabela sem recarregar
+  function addAbsenceToTable(absence) {
+    const table = document.querySelector('tbody');
+    const row = document.createElement('tr');
+  
+    // Cria as células com os dados
+    row.innerHTML = `
+      <td>${absence.employeeName}</td>
+      <td>${absence.startDate}</td>
+      <td>${absence.endDate}</td>
+      <td>${absence.reason}</td>
+      <td><button class="delete-btn"><i class="fas fa-trash-alt"></i></button></td>
+    `;
+  
+    table.appendChild(row);
+  }
+</script>
+
+  
+
+<script>
+// Captura todos os botões de exclusão
+document.querySelectorAll('.delete-btn').forEach(button => {
+  button.addEventListener('click', function(event) {
+    const absenceId = this.getAttribute('data-id'); // Pega o id da ausência
+    const row = this.closest('tr'); // Encontra a linha da tabela
+    const employeeName = row.querySelector('td:nth-child(1)').innerText; 
+    const startDate = row.querySelector('td:nth-child(2)').innerText; 
+    const endDate = row.querySelector('td:nth-child(3)').innerText; 
+    const reason = row.querySelector('td:nth-child(4)').innerText;
+
+    // Mensagem de confirmação incluindo o nome do funcionário, as datas e o motivo
+    const confirmationMessage = `Tem certeza que deseja excluir a ausência de ${employeeName} de ${startDate} a ${endDate} (${reason})?`;
+
+    // Confirmar com o usuário antes de excluir
+    if (confirm(confirmationMessage)) {
+      // Enviar requisição para o servidor para excluir a ausência
+      fetch(`/absences/${absenceId}`, {
+        method: 'DELETE',
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert(`A ausência de ${employeeName} foi excluída com sucesso!`);
+          // Atualiza a tabela sem recarregar a página
+          removeAbsenceFromTable(absenceId);
+        } else {
+          alert('Erro ao excluir a ausência!');
+        }
+      })
+      .catch(error => {
+        alert('Erro na requisição!');
+        console.error('Erro ao excluir:', error);
+      });
+    }
+  });
+});
+
+// Função para remover a ausência da tabela
+function removeAbsenceFromTable(absenceId) {
+  const rows = document.querySelectorAll('tbody tr');
+  rows.forEach(row => {
+    const rowId = row.querySelector('.delete-btn').getAttribute('data-id');
+    if (rowId === absenceId) {
+      row.remove(); 
+    }
+  });
+}
+
+
+</script>
+
+
+<!-- Botão para deletar todas as ausências com data-fim anterior ao dia de hoje -->
+<div class="button-container">
+  <button id="deleteAllBtn" class="link-button">Deletar ausências finalizadas</button>
+</div>
+
+<script>
+  document.getElementById('deleteAllBtn').addEventListener('click', function() {
+  // Obter a data de hoje no formato YYYY-MM-DD
+  const today = new Date();
+  const todayFormatted = today.toISOString().split('T')[0]; 
+  
+  
+  // Confirmar com o usuário
+  const confirmation = confirm(`Tem certeza que deseja excluir todas as ausências com data-fim anterior a hoje (${todayFormatted})?`);
+  
+  if (confirmation) {
+    // Obter todas as linhas da tabela
+    const rows = document.querySelectorAll('tbody tr');
+    
+    // Filtrar as ausências que têm a data-fim anterior a hoje
+    const absencesToDelete = [];
+    rows.forEach(row => {
+      const endDateCell = row.querySelector('td:nth-child(3)');
+      const endDate = endDateCell ? endDateCell.innerText.trim() : '';
+
+      if (endDate) {
+        // Converte a data de formato DD/MM/YY para um formato completo YYYY-MM-DD
+        const parts = endDate.split('/');
+        const year = parts[2].length === 2 ? `20${parts[2]}` : parts[2]; // Se o ano for de 2 dígitos, adiciona "20"
+        const formattedDate = new Date(`${year}-${parts[1]}-${parts[0]}`); // Formato YYYY-MM-DD
+
+        // Verifica se a data de término é anterior à data de hoje
+        if (formattedDate < today) {
+          const absenceId = row.querySelector('.delete-btn').getAttribute('data-id');
+          absencesToDelete.push(absenceId);
+        }
+      }
+    });
+
+    // Enviar requisição para o servidor para excluir as ausências
+    if (absencesToDelete.length > 0) {
+      fetch('/absences/delete-multiple', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ids: absencesToDelete }), // Enviar os IDs das ausências para o servidor
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('As ausências antigas foram excluídas com sucesso!');
+
+          // Remover as linhas da tabela (opcional)
+          absencesToDelete.forEach(id => {
+            const row = document.querySelector(`tr[data-id='${id}']`);
+            if (row) row.remove();
+          });
+        } else {
+          alert('Erro ao excluir as ausências.');
+        }
+      })
+      .catch(error => {
+        alert('Erro na requisição.');
+        console.error('Erro ao excluir as ausências:', error);
+      });
+    } else {
+      alert('Não há ausências antigas para excluir.');
+    }
+  }
+});
+
+</script>
+
+</body>
+</html>

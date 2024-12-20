@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/gantt.css">
+  <link rel="icon" type="image/ico" href="/favicon.ico">
+  <title>Ausências - Mês</title>
+</head>
+<body>
+
+  <h1>Ausências</h1>
+  <h2>Ausências do mês <%= new Date(monthStart).toLocaleDateString('pt-BR', { year: 'numeric', month: 'long' }) %></h2>
+
+  <div class="links-container">
+    <a href="/gantt/ganttMonthly?month=<%= previousMonthStart %>">Mês anterior</a> |
+    <a href="/gantt/ganttMonthly?month=<%= nextMonthStart %>">Próximo mês</a>
+  </div>
+
+  <table class="absence-table">
+    <thead>
+      <tr>
+        <th></th>
+        <% for (let i = 1; i <= daysInMonth; i++) { 
+          let currentDate = new Date(monthStart);
+          currentDate.setDate(i); 
+          let date = currentDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      %>
+        <th><%= date.split('/')[0] %></th> <!-- Exibe apenas o número do dia -->
+      <% } %>
+      </tr>
+    </thead>   
+    <tbody>
+      <% 
+        let groupedAbsences = {};
+        absences.forEach(absence => {
+          if (!groupedAbsences[absence.employeeName]) {
+            groupedAbsences[absence.employeeName] = [];
+          }
+          groupedAbsences[absence.employeeName].push(absence);
+        });
+
+        let sortedEmployeeNames = Object.keys(groupedAbsences).sort();
+
+        sortedEmployeeNames.forEach(employeeName => {
+          let employeeAbsences = groupedAbsences[employeeName];
+      %>
+        <tr>
+          <td><%= employeeName %></td>
+          <% for (let i = 1; i <= daysInMonth; i++) { %>
+            <td class="<%= 
+              employeeAbsences.some(absence => {
+                let currentDate = new Date(monthStart);
+                currentDate.setDate(i);
+                currentDate.setHours(0, 0, 0, 0);
+
+                let absenceStartDate = new Date(absence.startDate.split('/').reverse().join('/'));
+                absenceStartDate.setHours(0, 0, 0, 0);
+
+                let absenceEndDate = new Date(absence.endDate.split('/').reverse().join('/'));
+                absenceEndDate.setHours(23, 59, 59, 999);
+
+                return currentDate >= absenceStartDate && currentDate <= absenceEndDate;
+              }) ? 'absent' : ''
+            %>"></td>
+          <% } %>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+
+  <!-- Tabela simplificada de ausências para visão mensal -->
+<table class="absence-summary-table">
+  <thead>
+    <tr>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% 
+      // Ordenar as ausências por nome de funcionário
+      let sortedAbsences = absences.sort((a, b) => a.employeeName.localeCompare(b.employeeName));
+
+      sortedAbsences.forEach(absence => { 
+    %>
+      <tr>
+        <td><%= absence.employeeName %></td>
+        <td><%= absence.startDate %> a <%= absence.endDate %></td>
+        <td><%= absence.reason %></td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
+
+
+
+  <div class="button-container">
+    <button onclick="window.location.href='/'" class="link-button">Página inicial</button>
+  </div>
+
+<script>
+  console.log("monthStart:", "<%= monthStart %>");
+</script>
+
+</body>
+</html>

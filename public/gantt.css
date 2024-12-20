@@ -1,0 +1,225 @@
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Estilos gerais */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #4CAF50;
+}
+
+h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+    font-size: 18px;
+}
+
+/* Estilo da tabela de ausências */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 30px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+th, td {
+    padding: 10px;
+    text-align: center;
+}
+
+th {
+    background-color: #4CAF50;
+    color: white;
+}
+
+td {
+    font-size: 14px;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Estilo para os links de navegação */
+a {
+    text-decoration: none;
+    color: #4CAF50;
+    font-size: 16px;
+    padding: 5px 10px;
+}
+
+a:hover {
+    color: #45a049;
+    background-color: #f1f1f1;
+    border-radius: 4px;
+}
+
+/* Estilo das células com X */
+td.x-mark {
+    font-weight: bold;
+    color: #e74c3c;
+}
+
+/* Estilos de foco e interação */
+select,
+input[type="date"],
+textarea,
+button {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+select:focus,
+input[type="date"]:focus,
+textarea:focus,
+button:focus {
+    border-color: #4CAF50;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+#startDate, #endDate {
+    height: 35px; /* Aumenta a altura do campo */
+}
+
+
+/* Estilo para a tabela de ausências */
+.absence-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.absence-table th,
+.absence-table td {
+    padding: 8px;
+    text-align: center;
+}
+
+.absence-table th {
+    background-color: #f4f4f9; /* Fundo transparente */
+    color: #4CAF50; /* Cor verde */
+    border: none; /* Remover borda */
+}
+
+.absence-table th:hover {
+    background-color: #f4f4f9; /* Remover efeito de hover */
+    color: #4CAF50; /* Manter cor verde no hover */
+}
+
+.absence-table td {
+    background-color: #fff;
+}
+
+.absence-table td.absent {
+    background-color: #ffcccc;  /* Cor de fundo para a ausência */
+}
+
+/* Estilo para a tabela de resumo de ausências */
+.absence-summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.absence-summary-table th,
+.absence-summary-table td {
+    padding: 8px;
+    text-align: center;
+}
+
+.absence-summary-table th {
+    background-color: #f2f2f2;
+    color: #4CAF50;
+}
+
+.absence-summary-table td {
+    background-color: #fff;
+}
+
+/* Estilo para o texto da página */
+h1, h2 {
+    margin-bottom: 20px;
+}
+
+ul {
+    padding-left: 20px;
+    margin-top: 20px;
+}
+
+li {
+    margin-bottom: 10px;
+}
+
+/* Estilo para a div que envolve os links */
+.links-container {
+    margin-top: 20px; /* Espaço entre a tabela e os links */
+    text-align: center; /* Para centralizar os links */
+  }
+
+  .button-container {
+    display: flex; /* Ativa o modelo flexbox */
+    justify-content: center; /* Centraliza horizontalmente */
+    align-items: center; /* Centraliza verticalmente */
+    margin-top: 20px; /* Ajusta a distância do topo, se necessário */
+  }
+  
+  .link-button {
+    display: inline-block;
+    padding: 10px 20px; /* Ajusta o preenchimento do botão */
+    font-size: 16px; /* Ajusta o tamanho da fonte */
+    cursor: pointer;
+    border: 1px solid #ccc;
+    border-radius: 5px; /* Arredonda os cantos */
+    background-color: #4CAF50; /* Cor de fundo do botão */
+    color: white; /* Cor do texto */
+    text-align: center;
+    text-decoration: none; /* Remove sublinhado se houver */
+    width: auto; /* Deixa o tamanho ajustável */
+  }
+  
+  .link-button:hover {
+    background-color: #45a049; /* Cor do botão quando passa o mouse */
+  }
+  

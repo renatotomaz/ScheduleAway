@@ -74,7 +74,7 @@ Save it as start-server.bat.
 
 Use the Windows Task Scheduler to run this script automatically at login or startup.
 
-6. **Nginx Configuration*:*
+5. **Nginx Configuration:**
 Example Nginx configuration for proxying to the server:
 
         ```bash
@@ -98,3 +98,6 @@ After updating the configuration, reload Nginx:
 
         ```bash
         sudo nginx -s reload
+
+6. **Troubleshooting:**
+To be done

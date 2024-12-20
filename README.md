@@ -36,6 +36,7 @@ This project is a Node.js-based server application designed to help with managin
 2. **Install Dependencies:**
     ```bash
    npm install
+   npm install gulp gulp-cli gulp-copy --save-dev
 
 3. **Compilation and Execution:**
 *Running in Development  Mode*

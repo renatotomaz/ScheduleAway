@@ -37,6 +37,8 @@ This project is a Node.js-based server application designed to help with managin
     ```bash
    npm install
    npm install gulp gulp-cli gulp-copy --save-dev
+   npm install -g nodemon
+
 
 3. **Compilation and Execution:**
 *Running in Development  Mode*
@@ -81,7 +83,7 @@ Example Nginx configuration for proxying to the server:
         ```bash
 
             server {
-                listen       808;
+                listen       80;
                 server_name  localhost;
 
                 location / {

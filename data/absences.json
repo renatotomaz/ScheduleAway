@@ -1,2 +1,44 @@
 [
+  {
+    "index": 1,
+    "employeeName": "Frida Kahlo",
+    "startDate": "23/12/2024",
+    "endDate": "03/01/2025",
+    "reason": "Férias"
+  },
+  {
+    "index": 2,
+    "employeeName": "Galileo Galilei",
+    "startDate": "16/12/2024",
+    "endDate": "25/12/2024",
+    "reason": "Férias"
+  },
+  {
+    "index": 3,
+    "employeeName": "Martin Luther King Jr.",
+    "startDate": "09/12/2024",
+    "endDate": "08/01/2025",
+    "reason": "Licença paternidade"
+  },
+  {
+    "index": 4,
+    "employeeName": "Jane Austen",
+    "startDate": "02/12/2024",
+    "endDate": "24/01/2025",
+    "reason": "Viagem"
+  },
+  {
+    "index": 5,
+    "employeeName": "Mahatma Gandhi",
+    "startDate": "16/12/2024",
+    "endDate": "17/12/2024",
+    "reason": "Viagem"
+  },
+  {
+    "index": 6,
+    "employeeName": "William Shakespeare",
+    "startDate": "20/12/2024",
+    "endDate": "20/12/2024",
+    "reason": "Day-off"
+  }
 ]
